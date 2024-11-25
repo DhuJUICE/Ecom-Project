@@ -54,7 +54,7 @@ ROOT_URLCONF = 'ecom_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['ecom_project/browse_management'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
