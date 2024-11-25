@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-in(43*hkeezn*7g%p$%5@#n0n(#2$&m%97u4=s=!*op#sck2+!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['ecom-project-qt91.onrender.com']
+ALLOWED_HOSTS = ['ecom-project-qt91.onrender.com', '127.0.0.1']
 
 
 # Application definition
@@ -54,7 +54,14 @@ ROOT_URLCONF = 'ecom_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['ecom_project/browse_management'],
+        'DIRS': [
+			'browse_management/html_templates',
+			'api_management/html_templates',
+			'checkout_management/html_templates',
+			'cart_management/html_templates',
+			'product_management/html_templates',
+			'user_management/html_templates',
+		],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
