@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manages user login">
+    <title>Login</title>
+    <style>
+        body {
+            font-size: 25px;
+        }
+        fieldset {
+            height: 340px;
+            width: 300px;
+            padding: 20px;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+        .content {
+            display: grid;
+            gap: 10px
+        }
+        #submit {
+            margin: 0 auto;
+            padding: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        a {
+            text-align: center;
+        }
+        h1{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Login</h1>
+    </header>
+    <main>
+        <fieldset>
+            <div class="content">
+                <p>Email:</p>
+                <input type="text" id="email">
+                <p>Password:</p>
+                <input type="password" id="password">
+                <br>
+                <input type="button" value="Submit" id="submit">
+                <br>
+                <a href="" target="_blank">Forgot Password</a>
+            </div>
+        </fieldset>
+    </main>
+    <footer>
+    </footer>
+</body>
+</html>
