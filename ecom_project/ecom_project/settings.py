@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'user_management'
 ]
 
 MIDDLEWARE = [
@@ -70,8 +71,12 @@ WSGI_APPLICATION = 'ecom_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'Ecom_DB',
+        'USER': 'postgres',
+        'PASSWORD': 'ayanda',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
