@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Manages user login">
-    <title>Login</title>
+    <meta name="description" content="Manages user sign up">
+    <title>Sign Up</title>
     <style>
         body {
             font-size: 20px;
@@ -20,12 +20,12 @@
         }
         .content {
             display: grid;
-            gap: 15px;
+            gap: 10px;
         }
         .input-group {
-            display: flex; /* Aligns label and input side by side */
-            align-items: center; /* Vertically centers label and input */
-            gap: 10px; /* Adds space between the label and input */
+            display: flex;
+            align-items: center; 
+            gap: 5px;
         }
         #submit {
             margin: 0 auto;
@@ -43,11 +43,19 @@
 </head>
 <body>
     <header>
-        <h1>Login</h1>
+        <h1>Sign Up</h1>
     </header>
     <main>
         <fieldset>
             <div class="content">
+                <div class="input-group">
+                    <p>Firstname:</p>
+                    <input type="text" id="firstname">
+                </div>
+                <div class="input-group">
+                    <p>Lastname:</p>
+                    <input type="text" id="lastname">
+                </div>
                 <div class="input-group">
                     <p>Email:</p>
                     <input type="text" id="email">
@@ -55,6 +63,10 @@
                 <div class="input-group">
                     <p>Password:</p>
                     <input type="password" id="password">
+                </div>
+                <div class="input-group">
+                    <p>Confirm Password:</p>
+                    <input type="password" id="confirm_password">
                 </div>
                 <br>
                 <input type="button" value="Submit" id="submit">
