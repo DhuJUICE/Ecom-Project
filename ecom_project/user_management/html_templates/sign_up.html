@@ -9,6 +9,12 @@
         body {
             font-size: 20px;
         }
+        h1 {
+            text-align: center;
+        }
+        p {
+            text-align: center;
+        }
         fieldset {
             height: auto;
             width: 300px;
@@ -33,48 +39,53 @@
             font-size: 20px;
             cursor: pointer;
         }
-        a {
-            text-align: center;
-        }
-        h1 {
-            text-align: center;
-        }
     </style>
 </head>
 <body>
     <header>
         <h1>Sign Up</h1>
     </header>
-    <main>
+
+    <main>     
         <fieldset>
-            <div class="content">
-                <div class="input-group">
-                    <p>Firstname:</p>
-                    <input type="text" id="firstname">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="content">
+                    <div class="input-group">
+                        <label for="confirm_password">Firstname:</label>
+                        <input type="text" id="firstname" name="firstname" required>
+                    </div>
+                    <div class="input-group">
+                        <p>Lastname:</p>
+                        <input type="text" id="lastname" name="lastname" required>
+                    </div>
+                    <div class="input-group">
+                        <p>Email:</p>
+                        <input type="text" id="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <p>Password:</p>
+                        <input type="password" name="password" id="password" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="confirm_password">Confirm Password:</label>
+                        <input type="password" name="confirm_password" id="confirm_password" required>
+                    </div>
+                    <br>
+                    <button type="submit">Submit</button>
+                    <br>
                 </div>
-                <div class="input-group">
-                    <p>Lastname:</p>
-                    <input type="text" id="lastname">
-                </div>
-                <div class="input-group">
-                    <p>Email:</p>
-                    <input type="text" id="email">
-                </div>
-                <div class="input-group">
-                    <p>Password:</p>
-                    <input type="password" id="password">
-                </div>
-                <div class="input-group">
-                    <p>Confirm Password:</p>
-                    <input type="password" id="confirm_password">
-                </div>
-                <br>
-                <input type="button" value="Submit" id="submit">
-                <br>
-                <a href="" target="_blank">Forgot Password</a>
-            </div>
+            </form>
         </fieldset>
+        {% if messages %}
+        
+            {% for message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        
+        {% endif %}      
     </main>
+
     <footer>
     </footer>
 </body>
