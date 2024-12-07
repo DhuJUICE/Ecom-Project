@@ -49,7 +49,7 @@ TEMPLATES = [
 			'checkout_management/html_templates',
 			'cart_management/html_templates',
 			'product_management/html_templates',
-			'user_management/html_templates',
+			'user_management/templates/user_management',
 		],
         'APP_DIRS': True,
         'OPTIONS': {
