@@ -46,9 +46,9 @@
         <h1>Sign Up</h1>
     </header>
 
-    <main>     
-        <fieldset>
-            <form method="POST">
+    <main> 
+        <form method="POST"> 
+            <fieldset>          
                 {% csrf_token %}
                 <div class="content">
                     <div class="input-group">
@@ -75,8 +75,8 @@
                     <button type="submit">Register</button>
                     <br>
                 </div>
-            </form>
-        </fieldset>
+            </fieldset>
+        </form>
         {% if messages %}
         
             {% for message in messages %}
