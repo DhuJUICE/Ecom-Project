@@ -7,6 +7,12 @@
 </head>
 <body>
     <h1>Registration Successful!</h1>
-    <p>Welcome to the platform.</p>
+    {% if role == 'admin' %}
+        <p>Welcome to the platform, Admin!</p>
+    {% elif role == 'staff' %}
+        <p>Welcome to the platform, Staff Member!</p>
+    {% elif role == 'customer' %}
+        <p>Welcome to the platform, Customer!</p>
+    {% endif %}
 </body>
 </html>

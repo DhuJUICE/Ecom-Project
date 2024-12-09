@@ -65,6 +65,13 @@
                 </div>
             </fieldset>
         </form>
+        {% if messages %}
+        
+            {% for message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        
+        {% endif %} 
     </main>
     <footer>
     </footer>

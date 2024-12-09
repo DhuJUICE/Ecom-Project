@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.decorators import login_required
 from .models import User
 
 def login_view(request):
@@ -71,8 +72,10 @@ def register_view(request):
 
     return render(request, 'sign_up.html')
 
+@login_required
 def success_page(request):
-    return render(request, 'success.html')
+    user_role = request.user.role
+    return render(request, 'success.html', {'role': user_role})
 
 def logout_view(request):
     logout(request)  # Use Django's logout function
