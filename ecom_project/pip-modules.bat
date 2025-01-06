@@ -9,3 +9,4 @@ pip install django-cors-headers
 pip install drf-yasg
 pip install --upgrade setuptools
 pip install python-decouple
+pip install stripe
