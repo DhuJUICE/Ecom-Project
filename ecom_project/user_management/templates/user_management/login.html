@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manages user login">
+    <title>Login</title>
+    <style>
+        body {
+            font-size: 20px;
+        }
+        fieldset {
+            height: auto;
+            width: 300px;
+            padding: 20px;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+        }
+        .content {
+            display: grid;
+            gap: 15px;
+        }
+        .input-group {
+            display: flex; /* Aligns label and input side by side */
+            align-items: center; /* Vertically centers label and input */
+            gap: 10px; /* Adds space between the label and input */
+        }
+        #submit {
+            margin: 0 auto;
+            padding: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        a {
+            text-align: center;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Login</h1>
+    </header>
+    <main>
+        <form id="loginForm" method="POST">
+            {% csrf_token %}
+            <fieldset>
+                <div class="content">
+                    <div class="input-group">
+                        <label for="email">Email:</label>
+                        <input type="text" id="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <br>
+                    <button type="submit" id="loginButton">Login</button>
+                    <br>
+                    <a href="forgot_password.html" target="_blank">Forgot Password</a>
+                </div>
+            </fieldset>
+        </form>
+        {% if messages %}
+        
+            {% for message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        
+        {% endif %} 
+    </main>
+    <footer>
+    </footer>
+</body>
+</html>
