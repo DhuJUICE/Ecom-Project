@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'user_management'
+    'user_management',
+	'product_management',
 ]
 
 MIDDLEWARE = [
@@ -125,4 +126,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'user_management.User'
+#AUTH_USER_MODEL = 'user_management.User'
