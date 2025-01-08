@@ -76,11 +76,10 @@ WSGI_APPLICATION = 'ecom_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Ecom_DB',
-        'USER': 'postgres',
-        'PASSWORD': 'ayanda',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': 'OrderingSystemDB',
+        'USER' : 'postgres',
+        'PASSWORD' : '1234',
+        'HOST' : 'localhost'
     }
 }
 
