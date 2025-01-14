@@ -31,6 +31,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user_management',
 	'product_management',
+	'browse_management',
+	'cart_management',
+	'checkout_management',
+	'api_management',
 ]
 
 MIDDLEWARE = [
