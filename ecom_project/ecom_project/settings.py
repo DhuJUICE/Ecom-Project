@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 	'cart_management',
 	'checkout_management',
 	'api_management',
+	'rest_framework',
 ]
 
 MIDDLEWARE = [

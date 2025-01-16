@@ -22,10 +22,10 @@ class CartSerializer(serializers.ModelSerializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PRODUCT
+        model = TRANSACTION_LOG
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PRODUCT
+        model = User
         fields = '__all__'
