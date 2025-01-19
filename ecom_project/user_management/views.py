@@ -5,11 +5,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.decorators import login_required
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, auth
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from api_management.serializers import UserSerializer
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 
 #api endpoint for User model
 class UserAPI(APIView):
@@ -57,10 +61,9 @@ class UserAPI(APIView):
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
-
-
-
+#function to display the login screen
+def displayLogin(request):
+    return render(request, 'login.html')
 
 def login_view(request):
     if request.method == 'POST':
@@ -72,13 +75,15 @@ def login_view(request):
 
         if user:
             login(request, user)  # Use Django's login function
-            messages.success(request, "Login successful!")
-            return redirect('success')  # Redirect to success page
+            return JsonResponse({"message": "Login successful!", "status": "success"}, status=200)
         else:
-            messages.error(request, "Invalid email or password.")
-            return render(request, 'login.html', {"email": email})  # Keep entered email for convenience
+            return JsonResponse({"message": "Invalid email or password.", "status": "error"}, status=401)
+    else:
+        return JsonResponse({"message": "Invalid request method. POST required.", "status": "error"}, status=405)
 
-    return render(request, 'login.html')
+#function to display the login screen
+def displayRegister(request):
+    return render(request, 'sign_up.html')
 
 def register_view(request):
     if request.method == 'POST':
@@ -88,52 +93,33 @@ def register_view(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
 
-        # Define your password format using a regex
-        password_format = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$'
-
-        # Custom email format validation
-        email_format = r'^[a-zA-Z0-9._%+-]+@gmail\.com$'
-
-        # Validate email format
-        if not re.match(email_format, email):
-            messages.error(request, "Email must be in the format: name@gmail.com")
-            return render(request, 'sign_up.html')
-
-        # Validate password format
-        if not re.match(password_format, password):
-            messages.error(request, "Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a digit, and a special character.")
-            return render(request, 'sign_up.html')
-
-        # Check if passwords match
-        if password != confirm_password:
-            messages.error(request, "Passwords do not match!")
-            return render(request, 'sign_up.html')
-
         # Check if email already exists
-        if User.objects.filter(email_address=email).exists():
-            messages.error(request, "Email already exists.")
-            return render(request, 'sign_up.html')
+        if User.objects.filter(email=email).exists():
+            return JsonResponse(
+                {"message": "Email already exists.", "status": "error"}, 
+                status=400
+            )
 
-        # Save to database
+        # Create and save the new user
         new_user = User(
             first_name=first_name,
             last_name=last_name,
-            email_address=email,
-            password=make_password(password)  # Hash password
+            username=email,  # Use email as the username
+            email=email,
+            password=make_password(password)  # Hash password for security
         )
         new_user.save()
 
-        messages.success(request, "User registered successfully!")
-        return redirect('success')
+        return JsonResponse(
+            {"message": "User registered successfully!", "status": "success"}, 
+            status=201
+        )
 
-    return render(request, 'sign_up.html')
-
-@login_required
-def success_page(request):
-    user_role = request.user.role
-    return render(request, 'success.html', {'role': user_role})
+    return JsonResponse(
+        {"message": "Invalid request method. POST required.", "status": "error"}, 
+        status=405
+    )
 
 def logout_view(request):
-    logout(request)  # Use Django's logout function
-    messages.success(request, "You have logged out successfully!")
-    return redirect('login')
+    auth.logout(request)
+    return JsonResponse({"message": "You have logged out successfully!", "status": "success"}, status=200)
