@@ -14,14 +14,15 @@ def DisplayPage(request):
 
 stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 
+#Checkout method to process user payments using Stripe payment gateway
 def checkout(request):
     if request.method == 'POST':
-        amount_in_rands = int(float(request.POST.get('totalPurchaseTotal')))
-        print("AMOUNT IN WORDS: ", amount_in_rands)
-        amount = amount_in_rands*100 # Amount in cents (R50.00)(2decimals)
-        currency = 'zar'
-
         try:
+            amount_in_rands = int(float(request.POST.get('totalPurchaseTotal')))
+            print("AMOUNT IN WORDS: ", amount_in_rands)
+            amount = amount_in_rands * 100  # Amount in cents (R50.00)(2 decimals)
+            currency = 'zar'
+
             # Create a new charge
             charge = stripe.Charge.create(
                 amount=amount,
@@ -30,20 +31,31 @@ def checkout(request):
                 description='Payment for product',
             )
             print("payment successful")
-            return render(request, 'home.html')
+
+            # Construct success message
+            success_message = f"Your payment of R{amount_in_rands} was successfully processed."
+
+            # Return success response
+            return JsonResponse({"success": True, "message": success_message}, status=200)
+
         except stripe.error.StripeError as e:
+            # Handle Stripe errors
+            error_message = f"An error occurred while processing your payment: {str(e)}"
             print("Error: ", e)
 
-    return render(request, 'checkout.html', {'stripe_public_key': settings.STRIPE_TEST_PUBLIC_KEY, 'amount_in_rands':amount_in_rands})
+            # Return error response
+            return JsonResponse({"success": False, "error": error_message}, status=400)
 
+        except Exception as e:
+            # Catch any other errors
+            print("Error: ", e)
+            return JsonResponse({"success": False, "error": "An unexpected error occurred."}, status=500)
+
+    # If it's not a POST request, return a JsonResponse saying it's not allowed
+    return JsonResponse({"success": False, "error": "Invalid request method. Please use POST."}, status=405)
 
 
 class CheckoutTrackingView(APIView):
-    """
-    API endpoint for managing TRANSACTION_LOG model.
-    Supports GET, POST, PUT, DELETE for transaction records.
-    """
-
     def get(self, request, transaction_id=None):
         """
         Retrieve transaction logs. If `transaction_id` is provided, retrieves a specific transaction log.
@@ -148,8 +160,6 @@ def add_first_cart_item_to_transaction(request):
                     },
                     "menu_item": {
                         "id": menu_item.id,
-                        "quantity_added": menu_item.itemQuantAdded,
-                        "total_price": menu_item.itemTotal,
                     },
                     "product": {
                         "id": product.id,
@@ -200,8 +210,6 @@ def add_first_cart_item_to_transaction(request):
                     },
                     "menu_item": {
                         "id": menu_item.id,
-                        "quantity_added": menu_item.itemQuantAdded,
-                        "total_price": menu_item.itemTotal,
                     },
                     "product": {
                         "id": product.id,
@@ -221,6 +229,6 @@ def add_first_cart_item_to_transaction(request):
             return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
 
         except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)}, status=500) 
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     return JsonResponse({"success": False, "error": "Invalid request method."}, status=405)
