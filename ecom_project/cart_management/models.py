@@ -1,14 +1,17 @@
 from django.db import models
 from browse_management.models import MENU
-from django.contrib.auth.models import User, auth
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 
-# Create your models here.
 class CART(models.Model):
-	#user details for cart table in database - as foreign key to get values from User table
-	userId = models.ForeignKey(User, on_delete=models.CASCADE)
-	
-	#product details for cart in database - - as foreign key to get values from PRODUCT table
-	menuId = models.ForeignKey(MENU, on_delete=models.CASCADE)
-
-	#track the date and time the product was added to the cart
-	datetimeAdded = models.DateTimeField()
+    # User details for cart table in database - as foreign key to get values from User table
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    
+    # Store cart items with their quantities as a JSON object
+    menuCartItems = JSONField(
+        default=dict,
+        help_text="Dictionary where keys are MENU item IDs and values are quantities"
+    )
+    
+    # Track the date and time the cart was last updated
+    datetimeUpdated = models.DateTimeField(auto_now=True)
