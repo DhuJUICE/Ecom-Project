@@ -23,6 +23,9 @@ urlpatterns = [
 	path('api/cart', views.CartManagement.as_view(), name='api-cart'),
 	path('api/cart/<int:pk>', views.CartManagement.as_view(), name='api-cart-id'),
 
+	#ADD TO CART API ENDPOINT
+	#path('api/add-to-cart', views.AddToCart.as_view(), name='api-add-to-cart'),
+
 	#TRANSACTION MANAGEMENT API ENDPOINTS
 	path('api/transaction', views.TransactionManagement.as_view(), name='api-transaction'),
 	path('api/transaction/<int:pk>', views.TransactionManagement.as_view(), name='api-transaction-id'),
