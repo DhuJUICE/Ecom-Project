@@ -298,18 +298,43 @@ class TransactionManagement(APIView):
         transaction.delete()
         return JsonResponse({"success": True, "message": "Transaction deleted successfully"}, status=204)
 #___________________________________________________________
+
+
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 #CHECKOUT MANAGEMENT API ENDPOINTS
+stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
+
 class CheckoutManagement(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        # Call the regular function
-        response = checkout(request)
+        amount_in_rands = int(request.POST.get("totalPurchaseTotal"))
+        print("AMOUNT IN WORDS: ", amount_in_rands, "\n")
+        amount = amount_in_rands*100 # Amount in cents (R50.00)(2decimals)
+        currency = 'zar'
 
-        # If the other function returns a JsonResponse, return its content as JSON
-        if isinstance(response, JsonResponse):
-            # Deserialize the content if it's a JsonResponse
-            return JsonResponse(json.loads(response.content), status=response.status_code)
+        try:
+            # Create a new charge
+            charge = stripe.Charge.create(
+                amount=amount,
+                currency=currency,
+                source=request.POST.get('stripeToken'),  # obtained with Stripe.js
+                description='Payment for product',
+            )
+            print("payment successful")
+            # Construct success message
+            success_message = f"Your payment of R{amount_in_rands} was successfully processed."
+            return JsonResponse({"success": True, "message": success_message}, status=200)
+        except stripe.error.StripeError as e:
+            print("Error: ", e)
 
-        # Handle other response types if necessary
-        return JsonResponse({"error": "Unexpected response type"}, status=500)
+        # Construct success message
+        fail_message = f"Your payment of R{amount_in_rands} was unsuccessful. Try again later"
+
+        # Return success response
+        return JsonResponse({"success": False, "message": fail_message}, status=400)

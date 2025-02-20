@@ -8,21 +8,29 @@ from api_management.serializers import TransactionSerializer
 from django.conf import settings
 import stripe
 
+import stripe
+from django.conf import settings
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+def displayTemplate(request):
+    return render(request, 'checkout_template.html')
+
 # Create your views here.
 def DisplayPage(request):
     return render(request, 'checkout_template.html')
 
 stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 
-#Checkout method to process user payments using Stripe payment gateway
 def checkout(request):
     if request.method == 'POST':
-        try:
-            amount_in_rands = int(float(request.POST.get('totalPurchaseTotal')))
-            print("AMOUNT IN WORDS: ", amount_in_rands)
-            amount = amount_in_rands * 100  # Amount in cents (R50.00)(2 decimals)
-            currency = 'zar'
+        amount_in_rands = int(float(request.POST.get('totalPurchaseTotal')))
+        print("AMOUNT IN WORDS: ", amount_in_rands, "\n")
+        amount = amount_in_rands*100 # Amount in cents (R50.00)(2decimals)
+        currency = 'zar'
 
+        try:
             # Create a new charge
             charge = stripe.Charge.create(
                 amount=amount,
@@ -31,28 +39,17 @@ def checkout(request):
                 description='Payment for product',
             )
             print("payment successful")
-
             # Construct success message
             success_message = f"Your payment of R{amount_in_rands} was successfully processed."
-
-            # Return success response
             return JsonResponse({"success": True, "message": success_message}, status=200)
-
         except stripe.error.StripeError as e:
-            # Handle Stripe errors
-            error_message = f"An error occurred while processing your payment: {str(e)}"
             print("Error: ", e)
 
-            # Return error response
-            return JsonResponse({"success": False, "error": error_message}, status=400)
+        # Construct success message
+        fail_message = f"Your payment of R{amount_in_rands} was unsuccessful. Try again later"
 
-        except Exception as e:
-            # Catch any other errors
-            print("Error: ", e)
-            return JsonResponse({"success": False, "error": "An unexpected error occurred."}, status=500)
-
-    # If it's not a POST request, return a JsonResponse saying it's not allowed
-    return JsonResponse({"success": False, "error": "Invalid request method. Please use POST."}, status=405)
+        # Return success response
+        return JsonResponse({"success": False, "message": fail_message}, status=400)
 
 
 class CheckoutTrackingView(APIView):
