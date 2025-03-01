@@ -29,7 +29,7 @@ class CartManagementView(APIView):
                 cart_item = CART.objects.get(id=cart_id)
 
                 # Get user details
-                user = cart_item.userId
+                user = cart_item.user
                 username = user.username if user else "Unknown User"
                 user_id = user.id if user else None
 
@@ -75,7 +75,7 @@ class CartManagementView(APIView):
             try:
                 user = cart_item.userId
                 username = user.username if user else "Unknown User"
-                user_id = user.id if user else None
+                user_id = cart_item.userId.id if user else None
                 menu_item = cart_item.menuId
                 product = menu_item.productId
 
@@ -167,7 +167,29 @@ class AddToCartQuickView(APIView):
                 return JsonResponse({"success": False, "error": "No user or menu item available"}, status=400)
 
             cart_item = CART.objects.create(
-                userId=user,
+                userId=user.id,
+                menuId=menu_item,
+                datetimeAdded=timezone_now()
+            )
+
+            return JsonResponse({"success": True, "message": "Item added to cart", "cart_id": cart_item.id}, status=201)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+    def post(self, request):
+        """
+        Simulate a POST request to add the first menu item to the first user's cart when visiting the URL.
+        Returns JSON response.
+        """
+        try:
+            user = request.user
+            menu_item = request.POST.get("menu_itemId")
+
+            if not user or not menu_item:
+                return JsonResponse({"success": False, "error": "No user or menu item available"}, status=400)
+
+            cart_item = CART.objects.create(
+                userId=user.id,
                 menuId=menu_item,
                 datetimeAdded=timezone_now()
             )

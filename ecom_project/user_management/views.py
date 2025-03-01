@@ -85,38 +85,56 @@ def login_view(request):
 def displayRegister(request):
     return render(request, 'sign_up.html')
 
+import json
+
 def register_view(request):
     if request.method == 'POST':
-        first_name = request.POST.get('firstname')
-        last_name = request.POST.get('lastname')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        try:
+            data = json.loads(request.body)  # Parse JSON data correctly
+            
+            first_name = data.get('first_name')
+            last_name = data.get('last_name')
+            email = data.get('email')
+            password = data.get('password')
+            confirm_password = data.get('confirm_password')  # Fix naming
+            username = email  # Use firstname as username
+            
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                return JsonResponse(
+                    {"message": "Email already exists.", "status": "error"},
+                    status=400
+                )
 
-        # Check if email already exists
-        if User.objects.filter(email=email).exists():
+            # Validate password match
+            if password != confirm_password:
+                return JsonResponse(
+                    {"message": "Passwords do not match.", "status": "error"},
+                    status=400
+                )
+
+            # Create and save the new user
+            new_user = User.objects.create_user(
+                first_name=first_name,
+                last_name=last_name,
+                username=username,  # Ensure username is set
+                email=email,
+                password=password  # `create_user` automatically hashes the password
+            )
+
             return JsonResponse(
-                {"message": "Email already exists.", "status": "error"}, 
+                {"message": "User registered successfully!", "status": "success"},
+                status=201
+            )
+
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {"message": "Invalid JSON format.", "status": "error"},
                 status=400
             )
 
-        # Create and save the new user
-        new_user = User(
-            first_name=first_name,
-            last_name=last_name,
-            username=email,  # Use email as the username
-            email=email,
-            password=make_password(password)  # Hash password for security
-        )
-        new_user.save()
-
-        return JsonResponse(
-            {"message": "User registered successfully!", "status": "success"}, 
-            status=201
-        )
-
     return JsonResponse(
-        {"message": "Invalid request method. POST required.", "status": "error"}, 
+        {"message": "Invalid request method. POST required.", "status": "error"},
         status=405
     )
 

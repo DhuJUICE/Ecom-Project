@@ -33,6 +33,8 @@ from django.utils.timezone import now as timezone_now
 # Create your views here.
 def DisplayPage(request):
     return render(request, 'api_template.html')
+#
+########
 #___________________________________________________________
 #USER MANAGEMENT API ENDPOINTS
 #API ENDPOINT FOR LOGIN
@@ -138,85 +140,16 @@ class CartManagement(APIView):
     def get(self, request, cart_id=None):
         if cart_id:
             try:
-                # Retrieve the specific cart item
                 cart_item = CART.objects.get(id=cart_id)
-
-                # Get user details
-                user = cart_item.userId
-                username = user.username if user else "Unknown User"
-                user_id = user.id if user else None
-
-                # Retrieve menu and product details
-                menu_item = cart_item.menuId
-                product = menu_item.productId
-
-                # Prepare the response
-                return JsonResponse({
-                    "success": True,
-                    "data": {
-                        "cart_item": {
-                            "id": cart_item.id,
-                            "datetimeAdded": cart_item.datetimeAdded,
-                        },
-                        "menu_item": {
-                            "id": menu_item.id,
-                        },
-                        "product": {
-                            "id": product.id,
-                            "name": product.prodName,
-                            "price": product.prodPrice,
-                            "description": product.prodDesc,
-                            "available_quantity": product.prodAvailQuant,
-                            "on_menu": product.prodOnMenu,
-                        },
-                        "user": {
-                            "userId": user_id,
-                            "username": username,
-                        },
-                    }
-                }, status=200)
+                serializer = CartSerializer(cart_item)
+                return JsonResponse({"success": True, "data": serializer.data}, status=200)
             except CART.DoesNotExist:
                 return JsonResponse({"success": False, "error": "Cart item not found"}, status=404)
-
-        # Retrieve all cart items
-        cart_items = CART.objects.all()
-        response_data = []
-
-        for cart_item in cart_items:
-            try:
-                user = cart_item.userId
-                username = user.username if user else "Unknown User"
-                user_id = user.id if user else None
-                menu_item = cart_item.menuId
-                product = menu_item.productId
-
-                response_data.append({
-                    "cart_item": {
-                        "id": cart_item.id,
-                        "datetimeAdded": cart_item.datetimeAdded,
-                    },
-                    "menu_item": {
-                        "id": menu_item.id,
-                    },
-                    "product": {
-                        "id": product.id,
-                        "name": product.prodName,
-                        "price": product.prodPrice,
-                        "description": product.prodDesc,
-                        "available_quantity": product.prodAvailQuant,
-                        "on_menu": product.prodOnMenu,
-                    },
-                    "user": {
-                        "userId": user_id,
-                        "username": username,
-                    },
-                })
-            except Exception as e:
-                # Handle any unexpected errors gracefully
-                response_data.append({"error": str(e)})
-
-        return JsonResponse({"success": True, "data": response_data}, status=200, safe=False)
         
+        cart_items = CART.objects.all()
+        serializer = CartSerializer(cart_items, many=True)
+        return JsonResponse({"success": True, "data": serializer.data}, status=200, safe=False)
+    
     def post(self, request):
         serializer = CartSerializer(data=request.data)
         if serializer.is_valid():
