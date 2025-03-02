@@ -13,7 +13,7 @@ urlpatterns = [
 
 	#USER MANAGEMENT API ENDPOINTS
 	path('api/register', views.Register.as_view(), name='api-register'),
-	path('api/login', views.Login.as_view(), name='api-login'),
+	#path('api/login', views.Login.as_view(), name='api-login'),
 	path('api/logout', views.Logout.as_view(), name='api-logout'),
 
 	#PRODUCT MANAGEMENT API ENDPOINTS
@@ -23,9 +23,9 @@ urlpatterns = [
 	#CART MANAGEMENT API ENDPOINTS
 	path('api/cart', views.CartManagement.as_view(), name='api-cart'),
 	path('api/cart/<int:pk>', views.CartManagement.as_view(), name='api-cart-id'),
-
-	#ADD TO CART API ENDPOINT
-	#path('api/add-to-cart', views.AddToCart.as_view(), name='api-add-to-cart'),
+    
+	#ADD TO CART FUNCTIONALITY
+	path('api/cart/add', views.AddToCart.as_view(), name='api-cart-add'),
 
 	#TRANSACTION MANAGEMENT API ENDPOINTS
 	path('api/transaction', views.TransactionManagement.as_view(), name='api-transaction'),

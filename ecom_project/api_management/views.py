@@ -133,50 +133,120 @@ class ProductManagement(APIView):
         except PRODUCT.DoesNotExist:
             return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
 #___________________________________________________________
+class AddToCart(APIView):
+    permission_classes = [IsAuthenticated]
+
+    """
+    API endpoint for managing ADDING to the CART model.
+    Supports POST
+    """
+
+    def post(self, request):
+        """
+        Add or update a menu item in the user's cart.
+        """
+        try:
+            user = request.user  # Get the authenticated user
+            data = request.data
+            product_id = str(data.get("productId"))  # Convert to string for dictionary key
+            quantity = int(data.get("quantity", 1))  # Default quantity is 1
+
+            if not product_id:
+                return JsonResponse({"success": False, "error": "Product ID is required"}, status=400)
+
+            # Get or create the cart for the user
+            cart, created = CART.objects.get_or_create(user=user)
+
+            # Load existing menuCartItems
+            cart_items = cart.menuCartItems
+
+            # Update quantity if item already exists, otherwise add new item
+            if product_id in cart_items:
+                cart_items[product_id] = quantity
+            else:
+                cart_items[product_id] = quantity
+
+            # Save the updated cart
+            cart.menuCartItems = cart_items
+            cart.save()
+
+            return JsonResponse({"success": True, "cart": cart_items}, status=200)
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
 #CART MANAGEMENT API ENDPOINTS
 class CartManagement(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-    def get(self, request, cart_id=None):
-        if cart_id:
-            try:
-                cart_item = CART.objects.get(id=cart_id)
-                serializer = CartSerializer(cart_item)
-                return JsonResponse({"success": True, "data": serializer.data}, status=200)
-            except CART.DoesNotExist:
-                return JsonResponse({"success": False, "error": "Cart item not found"}, status=404)
-        
-        cart_items = CART.objects.all()
-        serializer = CartSerializer(cart_items, many=True)
-        return JsonResponse({"success": True, "data": serializer.data}, status=200, safe=False)
-    
+    """
+    API endpoint for managing the CART model.
+    Supports GET, POST, PUT, DELETE.
+    """
+    def get(self, request):
+        try:
+            # Check if the user is authenticated
+            if not request.user.is_authenticated:
+                return JsonResponse({"success": False, "message": "Please log in to see your cart."}, status=401)
+            
+            # Get the cart for the authenticated user
+            cart = CART.objects.get(user=request.user.id)
+
+            # Extract menuCartItems
+            cart_items = cart.menuCartItems  # This is already stored as a dictionary
+            print(str(cart_items))
+            return JsonResponse({"success": True, "cart": cart_items}, status=200)
+
+        except CART.DoesNotExist:
+            return JsonResponse({"success": False, "cart": {}}, status=200)  # Return empty cart if not found
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
     def post(self, request):
-        serializer = CartSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse({"success": True, "data": serializer.data}, status=201)
-        return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
+        """
+        Create a new cart item.
+        Returns JSON response.
+        """
+        try:
+            serializer = CartSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"success": True, "data": serializer.data}, status=201)
+            return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     def put(self, request, cart_id):
+        """
+        Update an existing cart item.
+        Returns JSON response.
+        """
         try:
             cart_item = CART.objects.get(id=cart_id)
+            serializer = CartSerializer(cart_item, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({"success": True, "data": serializer.data}, status=200)
+            return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
         except CART.DoesNotExist:
             return JsonResponse({"success": False, "error": "Cart item not found"}, status=404)
-
-        serializer = CartSerializer(cart_item, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse({"success": True, "data": serializer.data}, status=200)
-        return JsonResponse({"success": False, "errors": serializer.errors}, status=400)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     def delete(self, request, cart_id):
+        """
+        Delete a cart item.
+        Returns JSON response.
+        """
         try:
             cart_item = CART.objects.get(id=cart_id)
+            cart_item.delete()
+            return JsonResponse({"success": True, "message": "Cart item deleted successfully"}, status=204)
         except CART.DoesNotExist:
             return JsonResponse({"success": False, "error": "Cart item not found"}, status=404)
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
 
-        cart_item.delete()
-        return JsonResponse({"success": True, "message": "Cart item deleted successfully"}, status=204)
 #___________________________________________________________
 #TRANSACTION MANAGEMENT API ENDPOINTS
 class TransactionManagement(APIView):
@@ -246,28 +316,17 @@ class CheckoutManagement(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        amount_in_rands = int(request.POST.get("totalPurchaseTotal"))
-        print("AMOUNT IN WORDS: ", amount_in_rands, "\n")
-        amount = amount_in_rands*100 # Amount in cents (R50.00)(2decimals)
-        currency = 'zar'
+        stripe_token = request.POST.get('stripeToken')
+        total_price = int(float(request.POST.get('totalPurchaseTotal'))) * 100 # Amount in cents
 
         try:
-            # Create a new charge
+            # Create a charge (you can also use a PaymentIntent depending on your use case)
             charge = stripe.Charge.create(
-                amount=amount,
-                currency=currency,
-                source=request.POST.get('stripeToken'),  # obtained with Stripe.js
-                description='Payment for product',
+                amount=total_price,
+                currency='zar',  # You can change this to your currency (e.g., 'zar' for South African Rand)
+                source=stripe_token,
+                description='Payment for your order',
             )
-            print("payment successful")
-            # Construct success message
-            success_message = f"Your payment of R{amount_in_rands} was successfully processed."
-            return JsonResponse({"success": True, "message": success_message}, status=200)
+            return JsonResponse({'status': 'success', 'charge': charge})
         except stripe.error.StripeError as e:
-            print("Error: ", e)
-
-        # Construct success message
-        fail_message = f"Your payment of R{amount_in_rands} was unsuccessful. Try again later"
-
-        # Return success response
-        return JsonResponse({"success": False, "message": fail_message}, status=400)
+            return JsonResponse({'status': 'error', 'message': str(e)})
